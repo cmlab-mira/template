@@ -9,7 +9,7 @@ class Dice(nn.Module):
     '''
 
     def __init__(self, num_classes):
-        self.__name__ = 'Dice'
+        super().__init__()
         self.num_classes = num_classes
 
     def forward(self, pred, label):

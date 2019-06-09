@@ -5,7 +5,7 @@ class DiceLoss(nn.Module):
     '''Dice loss
     '''
     def __init__(self):
-        self.__name__ = 'DiceLoss'
+        super().__init__()
 
     def forward(self, pred, label):
         # One hot the ground truth label
