@@ -18,60 +18,58 @@ class UNet(BaseNet):
         self.out_channels = out_channels
         self.num_features = num_features
 
-        self.in_module = InModule(in_channels, num_features[0])
-        self.down_module1 = DownModule(num_features[0], num_features[1])
-        self.down_module2 = DownModule(num_features[1], num_features[2])
-        self.down_module3 = DownModule(num_features[2], num_features[3])
-        self.down_module4 = DownModule(num_features[3], num_features[4])
-        self.up_module1 = UpModule(num_features[4], num_features[3])
-        self.up_module2 = UpModule(num_features[3], num_features[2])
-        self.up_module3 = UpModule(num_features[2], num_features[1])
-        self.up_module4 = UpModule(num_features[1], num_features[0])
-        self.out_module = OutModule(num_features[0], out_channels)
+        self.in_block = _InBlock(in_channels, num_features[0])
+        self.down_block1 = _DownBlock(num_features[0], num_features[1])
+        self.down_block2 = _DownBlock(num_features[1], num_features[2])
+        self.down_block3 = _DownBlock(num_features[2], num_features[3])
+        self.down_block4 = _DownBlock(num_features[3], num_features[4])
+        self.up_block1 = _UpBlock(num_features[4], num_features[3])
+        self.up_block2 = _UpBlock(num_features[3], num_features[2])
+        self.up_block3 = _UpBlock(num_features[2], num_features[1])
+        self.up_block4 = _UpBlock(num_features[1], num_features[0])
+        self.out_block = _OutBlock(num_features[0], out_channels)
 
     def forward(self, input):
-        features1 = self.in_module(input)
-        features2 = self.down_module1(features1)
-        features3 = self.down_module2(features2)
-        features4 = self.down_module3(features3)
-        features = self.down_module4(features4)
+        # Encoder
+        features1 = self.in_block(input)
+        features2 = self.down_block1(features1)
+        features3 = self.down_block2(features2)
+        features4 = self.down_block3(features3)
+        features = self.down_block4(features4)
 
-        features = self.up_module1(features, features4)
-        features = self.up_module2(features, features3)
-        features = self.up_module3(features, features2)
-        features = self.up_module4(features, features1)
-        output = self.out_module(features)
+        # Decoder
+        features = self.up_block1(features, features4)
+        features = self.up_block2(features, features3)
+        features = self.up_block3(features, features2)
+        features = self.up_block4(features, features1)
+        output = self.out_block(features)
         return output
 
 
-class InModule(nn.Module):
+class _InBlock(nn.Sequential):
     def __init__(self, in_channels, out_channels):
         super().__init__()
-        self.conv = nn.Sequential(nn.Conv2d(in_channels, out_channels, kernel_size=3, padding=1),
-                                  nn.BatchNorm2d(out_channels),
-                                  nn.ReLU(inplace=True),
-                                  nn.Conv2d(out_channels, out_channels, kernel_size=3, padding=1),
-                                  nn.BatchNorm2d(out_channels),
-                                  nn.ReLU(inplace=True))
-    def forward(self, input):
-        return self.conv(input)
+        self.add_module('conv1', nn.Conv2d(in_channels, out_channels, kernel_size=3, padding=1))
+        self.add_module('norm1', nn.BatchNorm2d(out_channels))
+        self.add_module('relu1', nn.ReLU(inplace=True))
+        self.add_module('conv2', nn.Conv2d(out_channels, out_channels, kernel_size=3, padding=1))
+        self.add_module('norm2', nn.BatchNorm2d(out_channels))
+        self.add_module('relu2', nn.ReLU(inplace=True))
 
 
-class DownModule(nn.Module):
+class _DownBlock(nn.Sequential):
     def __init__(self, in_channels, out_channels):
         super().__init__()
-        self.conv = nn.Sequential(nn.MaxPool2d(2),
-                                  nn.Conv2d(in_channels, out_channels, kernel_size=3, padding=1),
-                                  nn.BatchNorm2d(out_channels),
-                                  nn.ReLU(inplace=True),
-                                  nn.Conv2d(out_channels, out_channels, kernel_size=3, padding=1),
-                                  nn.BatchNorm2d(out_channels),
-                                  nn.ReLU(inplace=True))
-    def forward(self, input):
-        return self.conv(input)
+        self.add_module('pool', nn.MaxPool2d(2))
+        self.add_module('conv1', nn.Conv2d(in_channels, out_channels, kernel_size=3, padding=1))
+        self.add_module('norm1', nn.BatchNorm2d(out_channels))
+        self.add_module('relu1', nn.ReLU(inplace=True))
+        self.add_module('conv2', nn.Conv2d(out_channels, out_channels, kernel_size=3, padding=1))
+        self.add_module('norm2', nn.BatchNorm2d(out_channels))
+        self.add_module('relu2', nn.ReLU(inplace=True))
 
 
-class UpModule(nn.Module):
+class _UpBlock(nn.Module):
     def __init__(self, in_channels, out_channels):
         super().__init__()
         self.deconv = nn.ConvTranspose2d(in_channels, out_channels, kernel_size=2, stride=2)
@@ -94,10 +92,6 @@ class UpModule(nn.Module):
         return output
 
 
-class OutModule(nn.Module):
+class _OutBlock(nn.Conv2d):
     def __init__(self, in_channels, out_channels):
-        super().__init__()
-        self.conv = nn.Conv2d(in_channels, out_channels, kernel_size=1)
-
-    def forward(self, input):
-        return self.conv(input)
+        super().__init__(in_channels, out_channels, kernel_size=1)
