@@ -1,0 +1,74 @@
+main:
+    saved_dir: './models/unet2d/'
+    random_seed: 'kits_seg'
+
+dataset:
+    name: 'KitsSegDataset'
+    kwargs:
+        data_root: "/home/vic85821/kits19/data/"
+        data_split_csv: "/home/vic85821/kits19/dataset_split.csv"
+        transforms:
+            - name: 'RandomElasticDeformation'
+              do: true
+            - name: 'RandomCrop'
+              do: true
+              kwargs:
+                  size: [256, 256]
+            - name: 'Normalize'
+              do: true
+
+dataloader:
+    name: 'Dataloader'
+    kwargs:
+        train_batch_size: 16
+        valid_batch_size: 1
+        shuffle: true
+        num_workers: 8
+
+net:
+    name: 'UNet'
+    kwargs:
+        in_channels: 1
+        out_channels: 3
+
+losses:
+    - name: 'DiceLoss'
+      weight: 1.0
+
+metrics:
+    - name: 'Dice'
+      kwargs:
+          num_classes: 3
+
+optimizer:
+    name: 'Adam'
+    kwargs:
+        lr: 0.001
+        weight_decay: 0
+        amsgrad: false
+
+# The lr_scheduler section is not necessary.
+lr_scheduler:
+    name: 'StepLR'
+    kwargs:
+        step_size: 30
+        gamma: 0.1
+
+logger:
+    name: 'KitsSegLogger'
+    kwargs:
+        dummy_input: [32, 1, 256, 256]
+
+monitor:
+    name: 'Monitor'
+    kwargs:
+        mode: 'max'
+        target: 'Dice'
+        saved_freq: 10
+        early_stop: 20
+
+trainer:
+    name: 'KitsSegTrainer'
+    kwargs:
+        device: 'cuda:0'
+        num_epochs: 2000
