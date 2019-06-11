@@ -46,6 +46,7 @@ class KitsSegDataset(BaseDataset):
     def __getitem__(self, index):
         path_index, slice_index = self.data[index]
         image, label = nib.load(str(self.image_path[path_index])).get_data(), nib.load(str(self.label_path[path_index])).get_data()
+        image, label = image.astype(np.float64), label.astype(np.uint8)
         image, label = image[slice_index:slice_index+1].transpose((1, 2, 0)), label[slice_index:slice_index+1].transpose((1, 2, 0))
         image, label = self.transforms(image, label, normalize_tags=[True, False], dtypes=[torch.float, torch.long])
         image, label = image.permute(2, 0, 1).contiguous(), label.permute(2, 0, 1).contiguous()
