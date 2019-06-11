@@ -1,5 +1,6 @@
 import torch
 import torch.nn as nn
+import numpy as np
 
 
 class Dice(nn.Module):
@@ -14,11 +15,11 @@ class Dice(nn.Module):
 
     def forward(self, pred, label):
         # One hot the prediction and the ground truth label
-        _pred = torch.zeros((pred.shape[0], self.num_classes, pred.shape[2:])).scatter_(1, pred, 1).to(pred.device)
+        _pred = torch.zeros((pred.shape[0], self.num_classes, *pred.shape[2:])).to(pred.device).scatter_(1, pred, 1)
         _label = torch.zeros_like(_pred).scatter_(1, label, 1)
 
         # Calculate the dice score
-        reduce_dim = pred.shape[2:]
+        reduce_dim = tuple(np.arange(0, len(pred.shape))[2:])
         intersection = 2.0 * (_pred * _label).sum(reduce_dim)
         union = (_pred).sum(reduce_dim) + (_label).sum(reduce_dim)
         epsilon = 1e-10
