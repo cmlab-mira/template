@@ -1,5 +1,5 @@
 main:
-    saved_dir: './models/unet2d/'
+    saved_dir: '/home/vic85821/template/models/unet2d/'
     random_seed: 'kits_seg'
 
 dataset:
@@ -7,15 +7,14 @@ dataset:
     kwargs:
         data_root: "/home/vic85821/kits19/data/"
         data_split_csv: "/home/vic85821/kits19/dataset_split.csv"
-        transforms:
+        train_transforms:
             - name: 'RandomElasticDeformation'
-              do: true
             - name: 'RandomCrop'
-              do: true
               kwargs:
                   size: [256, 256]
             - name: 'Normalize'
-              do: true
+        valid_transforms:
+            - name: 'Normalize'
 
 dataloader:
     name: 'Dataloader'
@@ -23,7 +22,7 @@ dataloader:
         train_batch_size: 16
         valid_batch_size: 1
         shuffle: true
-        num_workers: 8
+        num_workers: 6
 
 net:
     name: 'UNet'
@@ -62,8 +61,8 @@ logger:
 monitor:
     name: 'Monitor'
     kwargs:
-        mode: 'max'
-        target: 'Dice'
+        mode: 'min'
+        target: 'Loss'
         saved_freq: 10
         early_stop: 20
 
