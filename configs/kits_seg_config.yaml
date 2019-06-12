@@ -9,6 +9,9 @@ dataset:
         data_split_csv: "/home/vic85821/kits19/dataset_split.csv"
         train_transforms:
             - name: 'RandomElasticDeformation'
+              kwargs:
+                  num_ctrl_points: 8
+                  prob: 0.7
             - name: 'RandomCrop'
               kwargs:
                   size: [256, 256]
