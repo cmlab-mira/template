@@ -30,26 +30,20 @@ class KitsSegDataset(BaseDataset):
             rows = csv.reader(f)
             for row in rows:
                 if row[1] == split_type:
-                    self.image_path.append(self.data_root / row[0] / 'imaging.nii.gz')
-                    self.label_path.append(self.data_root / row[0] / 'segmentation.nii.gz')
-
-        # Build the image look up table
-        for i in range(len(self.image_path)):
-            metadata = nib.load(str(self.label_path[i]))
-            img = metadata.get_data()
-            num_slice = metadata.header.get_data_shape()[0]
-            for j in range(num_slice):
-                # Append the list: [# image_path, # slice]
-                self.data.append([i, j])
+                    image_paths = [path for path in (self.data_root / row[0]).iterdir() \
+                            if path.is_file() and 'imaging' in path.parts[-1]]
+                    label_paths = [path for path in (self.data_root / row[0]).iterdir() \
+                            if path.is_file() and 'segmentation' in path.parts[-1]]
+                    self.image_path.extend(image_paths)
+                    self.label_path.extend(label_paths)
 
     def __len__(self):
-        return len(self.data)
+        return len(self.image_path)
 
     def __getitem__(self, index):
-        path_index, slice_index = self.data[index]
-        image, label = nib.load(str(self.image_path[path_index])).get_data(), nib.load(str(self.label_path[path_index])).get_data()
+        image, label = nib.load(str(self.image_path[index])).get_data(), nib.load(str(self.label_path[index])).get_data()
+        image, label = image.transpose((1, 2, 0)), label.transpose((1, 2, 0))
         image, label = image.astype(np.float64), label.astype(np.uint8)
-        image, label = image[slice_index:slice_index+1].transpose((1, 2, 0)), label[slice_index:slice_index+1].transpose((1, 2, 0))
 
         if self.type == 'train':
             image, label = self.train_transforms(image, label, normalize_tags=[True, False], dtypes=[torch.float, torch.long])

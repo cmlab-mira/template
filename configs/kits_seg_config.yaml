@@ -5,10 +5,9 @@ main:
 dataset:
     name: 'KitsSegDataset'
     kwargs:
-        data_root: "/home/vic85821/kits19/data/"
+        data_root: "/home/vic85821/kits19_slice/data/"
         data_split_csv: "/home/vic85821/kits19/dataset_split.csv"
         train_transforms:
-            - name: 'RandomElasticDeformation'
             - name: 'RandomCrop'
               kwargs:
                   size: [256, 256]
