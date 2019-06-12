@@ -14,7 +14,8 @@ class KitsSegDataset(BaseDataset):
     """ 2019 MICCAI challenge (ref: https://kits19.grand-challenge.org/). The kits dataset for two stage methods.
     Args:
         data_split_csv (str): the csv path of the training / validation data split file
-        transforms (Box): the preprocessing and augmentation techiques applied to the data
+        train_transforms (Box): the preprocessing and augmentation techiques applied to the training data
+        valid_transforms (Box): the preprocessing and augmentation techiques applied to the validation data
     """
     def __init__(self, data_split_csv, train_transforms, valid_transforms, **kwargs):
         super().__init__(**kwargs)
