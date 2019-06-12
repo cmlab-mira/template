@@ -4,11 +4,10 @@ import numpy as np
 
 
 class Dice(nn.Module):
-    ''' Dice score
+    """Dice score
     Args:
         num_classes (int): the number of the prediction class
-    '''
-
+    """
     def __init__(self, num_classes):
         super().__init__()
         self.num_classes = num_classes
@@ -24,5 +23,16 @@ class Dice(nn.Module):
         union = (_pred).sum(reduce_dim) + (_label).sum(reduce_dim)
         epsilon = 1e-10
         score = intersection / (union + epsilon)
-
         return torch.mean(score, dim=0)
+
+
+class Accuracy(nn.Module):
+    """The accuracy for the classification.
+    """
+    def __init__(self):
+        super().__init__()
+
+    def forward(self, output, batch):
+        pred = torch.argmax(output, dim=1)
+        label = batch['label']
+        return (pred == label).float().mean()
