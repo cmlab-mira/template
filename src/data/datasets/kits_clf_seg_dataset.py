@@ -1,5 +1,4 @@
 import csv
-import glob
 import torch
 import numpy as np
 import nibabel as nib
@@ -32,27 +31,28 @@ class KitsClfSegDataset(BaseDataset):
             rows = csv.reader(f)
             for case_name, split_type in rows:
                 if split_type == type_:
-                    _image_paths = glob.glob(self.data_root / case_name / 'imaging*.nii.gz').sort()
-                    _clf_label_paths = glob.glob(self.data_root / case_name / 'classification*.nii.gz').sort()
-                    _seg_label_paths = glob.glob(self.data_root / case_name / 'segmentation*.nii.gz').sort()
+                    _image_paths = sorted(list((self.data_root / case_name).glob('imaging*.nii.gz')))
+                    _clf_label_paths = sorted(list((self.data_root / case_name).glob('classification*.npy')))
+                    _seg_label_paths = sorted(list((self.data_root / case_name).glob('segmentation*.nii.gz')))
                     if self.task == 'clf':
                         self.data_paths.extend([(image_path, clf_label_path) for image_path, clf_label_path in zip(_image_paths, _clf_label_paths)])
                     elif self.task == 'seg':
                         # Exclude the slice that does not contain the kidney or the tumer (foreground).
-                        self.data_paths.extend([(image_path, seg_label_path) for image_path, clf_label_path, seg_label_path in zip(_image_paths, _clf_label_paths, _seg_label_paths)] if nib.load(str(clf_label_path)).get_data() != 0)
+                        self.data_paths.extend([(image_path, seg_label_path) for image_path, clf_label_path, seg_label_path in zip(_image_paths, _clf_label_paths, _seg_label_paths) if np.load(clf_label_path) != 0])
 
     def __len__(self):
         return len(self.data_paths)
 
     def __getitem__(self, index):
         image_path, label_path = self.data_paths[index]
-        image, label = nib.load(str(image_path)).get_data(), nib.load(str(label_path)).get_data()
+        image = nib.load(str(image_path)).get_data()
+        label = np.load(label_path) if self.task == 'clf' else nib.load(str(label_path)).get_data()
         if self.type == 'train' and self.task == 'clf':
-            image = self.train_transforms(image, dtypes=[torch.float])
+            image = self.train_transforms(image)
             label = self.clf_label_transforms(label, dtypes=[torch.long])
             image = image.permute(2, 0, 1).contiguous()
         elif self.type == 'valid' and self.task == 'clf':
-            image = self.valid_transforms(image, dtypes=[torch.float])
+            image = self.valid_transforms(image)
             label = self.clf_label_transforms(label, dtypes=[torch.long])
             image = image.permute(2, 0, 1).contiguous()
         elif self.type == 'train' and self.task == 'seg':
