@@ -34,5 +34,4 @@ class Accuracy(nn.Module):
 
     def forward(self, output, batch):
         pred = torch.argmax(output, dim=1)
-        label = batch['label']
-        return (pred == label).float().mean()
+        return (pred == batch['label']).float().mean()
