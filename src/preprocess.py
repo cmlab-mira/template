@@ -18,8 +18,8 @@ def main(args):
             (output_dir / path.parts[-1]).mkdir(parents=True)
 
         # Read in the CT scans
-        image = nib.load(str(path / 'imaging.nii.gz')).get_data()
-        label = nib.load(str(path / 'segmentation.nii.gz')).get_data()
+        image = nib.load(str(path / 'imaging.nii.gz')).get_data().astype(np.float32)
+        label = nib.load(str(path / 'segmentation.nii.gz')).get_data().astype(np.uint8)
 
         # Save each slice of the scan into single file
         for s in range(image.shape[0]):
@@ -32,7 +32,7 @@ def main(args):
 
             # The label for classification task. If the slice has kidney or tumor (foreground), the label is set to 1, otherwise is 0.
             _clf_label = np.array(1) if np.count_nonzero(_seg_label) > 0 else np.array(0)
-            nib.save(nib.Nifti1Image(_clf_label, np.eye(4)), str(output_dir / path.parts[-1] / f'classification_{s}.nii.gz'))
+            np.save(output_dir / path.parts[-1] / f'classification_{s}.npy', _clf_label)
 
 
 def _parse_args():
