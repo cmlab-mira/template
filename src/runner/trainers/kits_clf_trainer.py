@@ -1,3 +1,5 @@
+import torch
+
 from src.runner.trainers.base_trainer import BaseTrainer
 
 
@@ -16,6 +18,7 @@ class KitsClfTrainer(BaseTrainer):
             losses (sequence of torch.Tensor): The computed losses.
         """
         image, label = batch['image'], batch['label']
-        pred = self.net(image)
-        losses = tuple(loss(pred, label) for loss in self.losses)
-        return pred, losses
+        image = torch.cat([image, image, image], dim=1) # Concatenate three one-channel images to a three-channels image.
+        output = self.net(image)
+        losses = tuple(loss(output, label) for loss in self.losses)
+        return output, losses
