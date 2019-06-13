@@ -32,8 +32,10 @@ class ClfNet(BaseNet):
                 for module in classifier[:-1]:
                     if isinstance(module, nn.Linear):
                         module.reset_parameters()
+                model.classifier = classifier
             elif fc:
                 fc = nn.Linear(fc.in_features, num_classes)
+                model.fc = fc
         else:
             model = cls(pretrained=pretrained, num_classes=num_classes)
         setattr(self, name, model)
