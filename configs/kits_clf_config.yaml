@@ -13,8 +13,10 @@ dataset:
               kwargs:
                   size: [256, 256]
             - name: 'Normalize'
+            - name: 'ToTensor'
         valid_transforms:
             - name: 'Normalize'
+            - name: 'ToTensor'
 
 dataloader:
     name: 'Dataloader'
@@ -53,8 +55,8 @@ logger:
 monitor:
     name: 'Monitor'
     kwargs:
-        mode: 'min'
-        target: 'Loss'
+        mode: 'max'
+        target: 'Accuracy'
         saved_freq: 10
         early_stop: 0
 
