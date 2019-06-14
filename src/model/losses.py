@@ -1,24 +1,27 @@
 import torch
 import torch.nn as nn
-import numpy as np
 
 
 class DiceLoss(nn.Module):
-    '''Dice loss
-    '''
+    """The Dice loss.
+    """
     def __init__(self):
         super().__init__()
 
-    def forward(self, pred, label):
-        # One hot the ground truth label
-        # 2D image: N, num_classes, H, W; 3D volume: N, num_classes, H, W, D
-        _label = torch.zeros_like(pred).scatter_(1, label, 1)
+    def forward(self, output, target):
+        """
+        Args:
+            output (torch.Tensor) (N, C, *): The model output.
+            target (torch.Tensor) (N, 1, *): The data target.
+        Returns:
+            loss (torch.Tensor) (0): The dice loss.
+        """
+        # Get the one-hot encoding of the ground truth label.
+        target = torch.zeros_like(output).scatter_(1, target, 1)
 
-        # Calculate the dice loss
-        reduce_dim = tuple(np.arange(0, len(pred.shape))[2:])
-        intersection = 2.0 * (pred * _label).sum(reduce_dim)
-        union = (pred ** 2).sum(reduce_dim) + (_label ** 2).sum(reduce_dim)
-        epsilon = 1e-10
-        score = intersection / (union + epsilon)
-
-        return 1 - torch.mean(score)
+        # Calculate the dice loss.
+        reduced_dims = list(range(2, output.dim())) # (N, C, *) --> (N, C)
+        intersection = 2.0 * (output * target).sum(reduced_dims)
+        union = (output ** 2).sum(reduced_dims) + (target ** 2).sum(reduced_dims)
+        score = intersection / (union + 1e-10)
+        return 1 - score.mean()
