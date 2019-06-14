@@ -1,17 +1,14 @@
 main:
-    saved_dir: '/home/vic85821/template/models/unet2d/'
-    random_seed: 'kits_seg'
+    saved_dir: '/home/peter850706/template/models/kits_clf_seg/seg/unet2d/'
+    random_seed: 'unet2d'
 
 dataset:
-    name: 'KitsSegDataset'
+    name: 'KitsClfSegDataset'
     kwargs:
-        data_root: "/home/vic85821/kits19_slice/data/"
-        data_split_csv: "/home/vic85821/kits19/dataset_split.csv"
+        data_root: "/home/peter850706/kits19_slice/data/"
+        data_split_csv: "/home/peter850706/kits19_slice/dataset_split.csv"
+        task: 'seg'
         train_transforms:
-            - name: 'RandomElasticDeformation'
-              kwargs:
-                  num_ctrl_points: 8
-                  prob: 0.7
             - name: 'RandomCrop'
               kwargs:
                   size: [256, 256]
@@ -25,7 +22,7 @@ dataloader:
         train_batch_size: 16
         valid_batch_size: 1
         shuffle: true
-        num_workers: 6
+        num_workers: 8
 
 net:
     name: 'UNet'
@@ -49,17 +46,10 @@ optimizer:
         weight_decay: 0
         amsgrad: false
 
-# The lr_scheduler section is not necessary.
-lr_scheduler:
-    name: 'StepLR'
-    kwargs:
-        step_size: 30
-        gamma: 0.1
-
 logger:
     name: 'KitsSegLogger'
     kwargs:
-        dummy_input: [32, 1, 256, 256]
+        dummy_input: [16, 1, 256, 256]
 
 monitor:
     name: 'Monitor'
@@ -67,10 +57,10 @@ monitor:
         mode: 'min'
         target: 'Loss'
         saved_freq: 10
-        early_stop: 20
+        early_stop: 0
 
 trainer:
     name: 'KitsSegTrainer'
     kwargs:
         device: 'cuda:0'
-        num_epochs: 2000
+        num_epochs: 100
