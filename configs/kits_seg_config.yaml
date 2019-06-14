@@ -13,8 +13,10 @@ dataset:
               kwargs:
                   size: [256, 256]
             - name: 'Normalize'
+            - name: 'ToTensor'
         valid_transforms:
             - name: 'Normalize'
+            - name: 'ToTensor'
 
 dataloader:
     name: 'Dataloader'
@@ -36,8 +38,6 @@ losses:
 
 metrics:
     - name: 'Dice'
-      kwargs:
-          num_classes: 3
 
 optimizer:
     name: 'Adam'
@@ -54,8 +54,8 @@ logger:
 monitor:
     name: 'Monitor'
     kwargs:
-        mode: 'min'
-        target: 'Loss'
+        mode: 'max'
+        target: 'Dice'
         saved_freq: 10
         early_stop: 0
 
