@@ -1,0 +1,65 @@
+main:
+    saved_dir: '/home/peter850706/template/models/kits_clf_seg/clf/resnet34/'
+    random_seed: 'resnet34'
+
+dataset:
+    name: 'KitsClfSegDataset'
+    kwargs:
+        data_root: '/home/peter850706/kits19_slice/data/'
+        data_split_csv: '/home/peter850706/kits19_slice/dataset_split.csv'
+        task: 'clf'
+        train_transforms:
+            - name: 'RandomCrop'
+              kwargs:
+                  size: [256, 256]
+            - name: 'Normalize'
+        valid_transforms:
+            - name: 'Normalize'
+
+dataloader:
+    name: 'Dataloader'
+    kwargs:
+        train_batch_size: 32
+        valid_batch_size: 1
+        shuffle: true
+        num_workers: 8
+
+net:
+    name: 'ClfNet'
+    kwargs:
+        num_classes: 2
+        name: 'resnet34'
+        pretrained: false
+
+losses:
+    - name: 'CrossEntropyLoss'
+      weight: 1.0
+
+metrics:
+    - name: 'Accuracy'
+
+optimizer:
+    name: 'Adam'
+    kwargs:
+        lr: 0.001
+        weight_decay: 0
+        amsgrad: false
+
+logger:
+    name: 'KitsClfLogger'
+    kwargs:
+        dummy_input: [32, 1, 256, 256]
+
+monitor:
+    name: 'Monitor'
+    kwargs:
+        mode: 'min'
+        target: 'Loss'
+        saved_freq: 10
+        early_stop: 0
+
+trainer:
+    name: 'KitsClfTrainer'
+    kwargs:
+        device: 'cuda:0'
+        num_epochs: 100
