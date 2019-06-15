@@ -14,11 +14,11 @@ class KitsSegTrainer(BaseTrainer):
     def _get_inputs_targets(self, batch):
         """Specify the data input and target.
         Args:
-            batch (dict or tuple): A batch of data.
+            batch (dict): A batch of data.
 
         Returns:
             input (torch.Tensor): The data input.
-            target (torch.Tensor): The data target.
+            target (torch.LongTensor): The data target.
         """
         return batch['image'], batch['label']
 
@@ -26,10 +26,10 @@ class KitsSegTrainer(BaseTrainer):
         """Compute the losses.
         Args:
             output (torch.Tensor): The model output.
-            target (torch.Tensor): The data target.
+            target (torch.LongTensor): The data target.
 
         Returns:
-            losses (sequence of torch.Tensor): The computed losses.
+            losses (list of torch.Tensor): The computed losses.
         """
         losses = [loss(output, target) for loss in self.losses]
         return losses
@@ -38,10 +38,10 @@ class KitsSegTrainer(BaseTrainer):
         """Compute the metrics.
         Args:
              output (torch.Tensor): The model output.
-             target (torch.Tensor): The data target.
+             target (torch.LongTensor): The data target.
 
         Returns:
-            metrics (sequence of torch.Tensor): The computed metrics.
+            metrics (list of torch.Tensor): The computed metrics.
         """
         metrics = [metric(output, target) for metric in self.metrics]
         return metrics
@@ -70,8 +70,8 @@ class KitsSegTrainer(BaseTrainer):
             log (dict): The log to be updated.
             batch_size (int): The batch size.
             loss (torch.Tensor): The weighted sum of the computed losses.
-            losses (sequence of torch.Tensor): The computed losses.
-            metrics (sequence of torch.Tensor): The computed metrics.
+            losses (list of torch.Tensor): The computed losses.
+            metrics (list of torch.Tensor): The computed metrics.
         """
         log['Loss'] += loss.item() * batch_size
         for loss, _loss in zip(self.losses, losses):

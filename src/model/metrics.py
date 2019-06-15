@@ -12,7 +12,7 @@ class Dice(nn.Module):
         """
         Args:
             output (torch.Tensor) (N, C, *): The model output.
-            target (torch.Tensor) (N, 1, *): The data target.
+            target (torch.LongTensor) (N, 1, *): The data target.
 
         Returns:
             metric (torch.Tensor) (C): The dice scores for each class.
@@ -40,7 +40,7 @@ class Accuracy(nn.Module):
         """
         Args:
             output (torch.Tensor) (N, C): The model output.
-            target (torch.Tensor) (N): The data target.
+            target (torch.LongTensor) (N): The data target.
 
         Returns:
             metric (torch.Tensor) (0): The accuracy.

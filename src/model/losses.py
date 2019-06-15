@@ -12,7 +12,7 @@ class DiceLoss(nn.Module):
         """
         Args:
             output (torch.Tensor) (N, C, *): The model output.
-            target (torch.Tensor) (N, 1, *): The data target.
+            target (torch.LongTensor) (N, 1, *): The data target.
 
         Returns:
             loss (torch.Tensor) (0): The dice loss.
