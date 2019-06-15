@@ -9,10 +9,11 @@ class KitsClfTrainer(BaseTrainer):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
 
-    def _set_inputs_targets(self, batch):
+    def _get_inputs_targets(self, batch):
         """Specify the data input and target.
         Args:
             batch (dict or tuple): A batch of data.
+
         Returns:
             input (torch.Tensor): The data input.
             target (torch.Tensor): The data target.
@@ -26,6 +27,7 @@ class KitsClfTrainer(BaseTrainer):
         Args:
             output (torch.Tensor): The model output.
             target (torch.Tensor): The data target.
+
         Returns:
             losses (sequence of torch.Tensor): The computed losses.
         """
@@ -37,6 +39,7 @@ class KitsClfTrainer(BaseTrainer):
         Args:
              output (torch.Tensor): The model output.
              target (torch.Tensor): The data target.
+
         Returns:
             metrics (sequence of torch.Tensor): The computed metrics.
         """
