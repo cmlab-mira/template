@@ -30,8 +30,8 @@ class KitsSegDataset(BaseDataset):
             rows = csv.reader(f)
             for case_name, split_type in rows:
                 if split_type == type_:
-                    _image_paths = sorted(list((self.data_root / case_name).glob('imaging*.nii.gz')))
-                    _label_paths = sorted(list((self.data_root / case_name).glob('segmentation*.nii.gz')))
+                    _image_paths = sorted(list((self.data_dir / case_name).glob('imaging*.nii.gz')))
+                    _label_paths = sorted(list((self.data_dir / case_name).glob('segmentation*.nii.gz')))
                     self.data_paths.extend([(image_path, label_path) for image_path, label_path in zip(_image_paths, _label_paths)])
 
     def __len__(self):

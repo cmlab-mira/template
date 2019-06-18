@@ -1,11 +1,11 @@
 main:
-    saved_dir: '/home/peter850706/template/models/kits_clf_seg/seg/unet2d/'
     random_seed: 'unet2d'
+    saved_dir: '/home/peter850706/template/models/kits_clf_seg/seg/unet2d/'
 
 dataset:
     name: 'KitsClfSegDataset'
     kwargs:
-        data_root: "/home/peter850706/kits19_slice/data/"
+        data_dir: "/home/peter850706/kits19_slice/data/"
         data_split_csv: "/home/peter850706/kits19_slice/dataset_split.csv"
         task: 'seg'
         train_transforms:
