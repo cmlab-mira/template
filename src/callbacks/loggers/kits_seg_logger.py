@@ -30,6 +30,5 @@ class KitsSegLogger(BaseLogger):
 
         train_grid = torch.cat((train_img, train_label, train_pred), dim=-1)
         valid_grid = torch.cat((valid_img, valid_label, valid_pred), dim=-1)
-        with SummaryWriter(self.log_dir) as writer:
-            writer.add_image('train', train_grid)
-            writer.add_image('valid', valid_grid)
+        self.writer.add_image('train', train_grid)
+        self.writer.add_image('valid', valid_grid)
